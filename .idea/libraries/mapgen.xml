@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mapgen">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/mapgen/out/artifacts/mapgen_jar/mapgen.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

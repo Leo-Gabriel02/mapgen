@@ -23,7 +23,7 @@ public class mapgen {
     private double O1;
     private double O2;
     private double O3;
-    private int numShow = 10;
+    private int numShow = 11;
     private tile central;
     private static int sideLength = 21;
     private static tile[][] tiles = new tile[sideLength][sideLength];
@@ -33,11 +33,11 @@ public class mapgen {
         map.setOnScroll(event -> {
             int initialShow = numShow;
             numShow -= event.getDeltaY()/30;
-            if(numShow<4) numShow=4;
-            if(numShow>sideLength/2) numShow=sideLength/2;
+            if(numShow<=4) numShow=4;
+            if(numShow>=sideLength/2) numShow=sideLength/2;
             if(initialShow != numShow){
                 map.getChildren().clear();
-                central = tiles[initialShow+1][initialShow+1];
+                central = tiles[initialShow-2][initialShow-2];
                 int a = 0, b = 0;
                 for (int h = central.getY() - numShow - 1; h < central.getY() + numShow; h++) {
                     for (int w = central.getX() - numShow - 1; w < central.getX() + numShow; w++) {
@@ -117,19 +117,16 @@ public class mapgen {
                     central = tiles[c][d];
                     for (int h = central.getY() - numShow - 1; h < central.getY() + numShow; h++) {
                         for (int w = central.getX() - numShow - 1; w < central.getX() + numShow; w++) {
-                            int x = w, y = h;
-                            if (w < 0) x = Math.abs(sideLength + w);
-                            if (w > sideLength - 1) x = Math.abs(sideLength - w);
-                            if (h < 0) y = Math.abs(sideLength + h);
-                            if (h > sideLength - 1) y = Math.abs(sideLength - h);
+                            int x = wrap(w), y = wrap(h);
                             tile t = tiles[x][y];
                             if(t.getRect().getX() == 0) map.getChildren().remove(t.getRect());
-                            else if(!map.getChildren().contains(t.getRect())){
+                            if(!map.getChildren().contains(t.getRect())){
                                 t.getRect().setX( (numShow*2) * ((400 / (numShow * 2)) * 1.05) );    //-1 tick from x value
                                 t.getRect().setY( y *  ((400 / (numShow * 2)) * 1.05) );
                                 t.getRect().setHeight(400/(numShow*2)-1);
                                 t.getRect().setWidth(400/(numShow*2)-1);
                                 map.getChildren().add(t.getRect());
+                                System.out.println("xd");
                             }
                             else {
                                 t.getRect().setX(t.getRect().getX() - (400 / (numShow * 2)) * 1.05);    //-1 tick from x value
@@ -140,11 +137,36 @@ public class mapgen {
                 case "D":
                     c=central.getX()-1; d=central.getY();
                     if(c>sideLength-1)c=0;
+                    central = tiles[c][d];
+                    for (int h = central.getY() - numShow - 1; h < central.getY() + numShow; h++) {
+                        for (int w = central.getX() - numShow - 1; w < central.getX() + numShow; w++) {
+                            int x = wrap(w), y = wrap(h);
+                            tile t = tiles[x][y];
+                            if(w== central.getX()-numShow-1) map.getChildren().remove(t.getRect());
+                            if(!map.getChildren().contains(t.getRect())){
+                                t.getRect().setX( (numShow*2) * ((400 / (numShow * 2)) * 1.05) );
+                                t.getRect().setY(y * ((400 / (numShow * 2)) * 1.05));
+                                t.getRect().setHeight(400/(numShow*2)-1);
+                                t.getRect().setWidth(400/(numShow*2)-1);
+                                map.getChildren().add(t.getRect());
+                                System.out.println("xd");
+                            }
+                            else {
+                                t.getRect().setX(t.getRect().getX() + (400 / (numShow * 2)) * 1.05);    //+1 tick to     x value
+                            }
+                        }
+                    }
                     break;
             }
         });
-
     }
+
+    public int wrap(int original){
+        if (original < 0) original = Math.abs(sideLength + original);
+        if (original > sideLength - 1) original = Math.abs(sideLength - original);
+        return original;
+    }
+
     public void generate(ActionEvent actionEvent) {
         numShow=sideLength/2;
         noise = new OpenSimplexNoise(new Random().nextLong());
